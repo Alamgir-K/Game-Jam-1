@@ -12,18 +12,12 @@ public class ThrowHandler : MonoBehaviour
     Transform t;
     Vector3 throwDir;
     Vector3 debug;
+    public bool thrown = false;
+    public float bufferTime = 0.1f;
 
     private void Start()
     {
         t = GetComponent<Transform>();
-    }
-
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(debug + t.position, .1f);
-
     }
 
     void setDirectionVector()
@@ -44,6 +38,13 @@ public class ThrowHandler : MonoBehaviour
         throwDir.Normalize();
     }
 
+    IEnumerator buffer()
+    {
+        thrown = true;
+        yield return new WaitForSeconds(bufferTime);
+        thrown = false;
+    }
+
     void FixedUpdate()
     {
         Debug.Log(pressedTime);
@@ -57,19 +58,25 @@ public class ThrowHandler : MonoBehaviour
         arrow.transform.rotation = Quaternion.LookRotation(throwDir, Vector3.up) * Quaternion.AngleAxis(-90, Vector3.left);
 
         bool leftClick = Input.GetKey(KeyCode.Mouse0);
-        if (!leftClick)
+        if (!thrown)
         {
-            if (pressedTime != 0)
+            if (!leftClick)
             {
-                // activate slingshot mechanic
-                GameObject ballClone = Instantiate(ball, t.position + throwDir * 1.5f + Vector3.up, Quaternion.LookRotation(Vector3.forward, Vector3.up));
-                Rigidbody ballRB = ballClone.GetComponent<Rigidbody>();
-                ballRB.velocity = throwDir * pressedTime + new Vector3(0, 3, 0);
-                debug = ballRB.velocity;
-                Destroy(ballRB.gameObject, 5f);
+                if (pressedTime != 0)
+                {
+                    // activate slingshot mechanic
+                    GameObject ballClone = Instantiate(ball, t.position + throwDir * 1.5f + Vector3.up, Quaternion.LookRotation(Vector3.forward, Vector3.up));
+                    Rigidbody ballRB = ballClone.GetComponent<Rigidbody>();
+                    ballRB.velocity = throwDir * pressedTime + new Vector3(0, 3, 0);
+                    debug = ballRB.velocity;
+                    Destroy(ballRB.gameObject, 5f);
+                    StartCoroutine("buffer");
+                }
+                pressedTime = 0;
+
             }
-            pressedTime = 0;
+            else if (pressedTime < maxPressTime) pressedTime++;
         }
-        else if (pressedTime < maxPressTime) pressedTime++;
+
     }
 }
