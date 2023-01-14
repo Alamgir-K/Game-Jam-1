@@ -11,6 +11,7 @@ public class ThrowHandler : MonoBehaviour
 
     Transform t;
     Vector3 throwDir;
+    Vector3 debug;
 
     private void Start()
     {
@@ -21,7 +22,7 @@ public class ThrowHandler : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(throwDir + t.position, .1f);
+        Gizmos.DrawSphere(debug + t.position, .1f);
 
     }
 
@@ -34,6 +35,7 @@ public class ThrowHandler : MonoBehaviour
         Plane hPlane = new Plane(Vector3.up, Vector3.zero);
         float d;
         hPlane.Raycast(mouseRay, out d);
+        d = Mathf.Abs(d);
 
         Vector3 hitPos = new Vector3(mouseRay.GetPoint(d).x, 0, mouseRay.GetPoint(d).z);
 
@@ -50,7 +52,7 @@ public class ThrowHandler : MonoBehaviour
 
         // set arrow
         float yScale = pressedTime * 0.1f;
-        arrow.transform.localPosition = throwDir * yScale * 0.5f;
+        arrow.transform.localPosition = throwDir * yScale * 0.5f + new Vector3(0, 1f, 0);
         arrow.transform.localScale = new Vector3(0.57f, 0.67f + yScale, 2.07f);
         arrow.transform.rotation = Quaternion.LookRotation(throwDir, Vector3.up) * Quaternion.AngleAxis(-90, Vector3.left);
 
@@ -60,9 +62,10 @@ public class ThrowHandler : MonoBehaviour
             if (pressedTime != 0)
             {
                 // activate slingshot mechanic
-                GameObject ballClone = Instantiate(ball, t.position + throwDir * 1.5f, Quaternion.LookRotation(Vector3.forward, Vector3.up));
+                GameObject ballClone = Instantiate(ball, t.position + throwDir * 1.5f + Vector3.up, Quaternion.LookRotation(Vector3.forward, Vector3.up));
                 Rigidbody ballRB = ballClone.GetComponent<Rigidbody>();
-                ballRB.velocity = throwDir * pressedTime;
+                ballRB.velocity = throwDir * pressedTime + new Vector3(0, 3, 0);
+                debug = ballRB.velocity;
                 Destroy(ballRB.gameObject, 5f);
             }
             pressedTime = 0;
