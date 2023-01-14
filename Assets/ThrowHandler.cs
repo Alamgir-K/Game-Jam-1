@@ -25,11 +25,8 @@ public class ThrowHandler : MonoBehaviour
 
     }
 
-
-
-    void FixedUpdate()
+    void setDirectionVector()
     {
-        Debug.Log(pressedTime);
         // get mouse position
         Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -43,6 +40,13 @@ public class ThrowHandler : MonoBehaviour
         // set direction vector
         throwDir = hitPos - new Vector3(t.position.x, 0, t.position.z);
         throwDir.Normalize();
+    }
+
+    void FixedUpdate()
+    {
+        Debug.Log(pressedTime);
+        // set direction vector pointing at mouse position at xz-plane
+        setDirectionVector();
 
         // set arrow
         float yScale = pressedTime * 0.1f;
@@ -50,15 +54,16 @@ public class ThrowHandler : MonoBehaviour
         arrow.transform.localScale = new Vector3(0.57f, 0.67f + yScale, 2.07f);
         arrow.transform.rotation = Quaternion.LookRotation(throwDir, Vector3.up) * Quaternion.AngleAxis(-90, Vector3.left);
 
-
-
-
         bool leftClick = Input.GetKey(KeyCode.Mouse0);
         if (!leftClick)
         {
             if (pressedTime != 0)
             {
                 // activate slingshot mechanic
+                GameObject ballClone = Instantiate(ball, t.position + throwDir * 1.5f, Quaternion.LookRotation(Vector3.forward, Vector3.up));
+                Rigidbody ballRB = ballClone.GetComponent<Rigidbody>();
+                ballRB.velocity = throwDir * pressedTime;
+                Destroy(ballRB.gameObject, 5f);
             }
             pressedTime = 0;
         }
