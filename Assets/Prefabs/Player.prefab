@@ -114,7 +114,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ball: {fileID: 6846703778943950724, guid: de0e7efa0dfe68147b79e6a183864e05, type: 3}
   arrow: {fileID: 5999721074374732028}
-  maxPressTime: 100
+  maxPressTime: 30
+  thrown: 0
+  bufferTime: 0.6
 --- !u!1 &5999721074374732028
 GameObject:
   m_ObjectHideFlags: 0
